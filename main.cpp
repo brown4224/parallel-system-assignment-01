@@ -30,17 +30,53 @@
  * Example:  ./Assignment_01_Histogram random.binary 36
  *
  * */
+#include <cstdlib>
 #include <iostream>
 #include <fstream>
 #include <chrono>
 #include <vector>
-#include <limits>
-#include <math.h>
 #include <cmath>
 #include <assert.h>
 
 using namespace std;
 using namespace chrono;
+
+void clock(high_resolution_clock::time_point *array, int* time_samples){
+    for (int i = 0; i < *time_samples; i++) {
+        array[i] = high_resolution_clock::now();
+    }
+}
+
+double calculate_time(high_resolution_clock::time_point *start, high_resolution_clock::time_point *end, int *time_samples){
+    // Average time and convert to Micro Sec; 1 sec = 1,000,000 micro sec
+    double total = 0;
+    for (int i = 0; i < *time_samples; i++) {
+        chrono::duration<double, std::milli> diff = end[i] - start[i];  // Time in Micro Sec
+        total += diff.count();
+    }
+    return total / *time_samples;
+}
+
+void print(int sample_size, int min, int max, int bucketSize, vector<int>* data){
+    //////// Print //////////////
+    cout << "Sample Size: " <<  sample_size << endl;
+    cout << "Min Value: " << min << endl;
+    cout << "Max Value: " << max << endl;
+    cout << "bucket Range: " << bucketSize -1  << endl;
+    for (int i = 0; i < data->size(); ++i) {
+        cout << "[" << min + (i * bucketSize) << ", " << min + ((i + 1) * bucketSize) - 1 << "] : " << &data[i] << endl;
+    }
+}
+
+int check_user_number(char *argv){
+    char *endptr;
+    int intervalSize = strtol(argv, &endptr, 10);
+    if (!*argv || *endptr)
+        cerr << "Invalid number " << argv << '\n';
+    return intervalSize;
+}
+
+
 
 int main(int argc, char *argv[]) {
     cout << "Starting Program" << endl;
@@ -51,9 +87,8 @@ int main(int argc, char *argv[]) {
     int time_samples = 5;
     high_resolution_clock::time_point clock_start[time_samples];
     high_resolution_clock::time_point clock_end[time_samples];
-    for (int i = 0; i < time_samples; i++) {
-        clock_start[i] = high_resolution_clock::now();
-    }
+    clock(clock_start, &time_samples);
+
 
 
 
@@ -67,9 +102,9 @@ int main(int argc, char *argv[]) {
 
 
     assert(argc == 3);
-    assert(argv[2] > 0 );
     string filePath = argv[1];
-    int intervalSize = atoi(argv[2]);
+    int intervalSize =  check_user_number(argv[2]);
+    assert(intervalSize > 0 );
 
 
     //////// Variables //////////////
@@ -151,15 +186,7 @@ int main(int argc, char *argv[]) {
 
 
     //////// Print //////////////
-    cout << "Sample Size: " <<  fileLength / unit << endl;
-    cout << "Min Value: " << min << endl;
-    cout << "Max Value: " << max << endl;
-    cout << "bucket Range: " << bucketSize -1  << endl;
-
-
-    for (int i = 0; i < data.size(); ++i) {
-        cout << "[" << min + (i * bucketSize) << ", " << min + ((i + 1) * bucketSize) - 1 << "] : " << data[i] << endl;
-    }
+    print(fileLength / unit, min, max, bucketSize, &data);
 
     // Release resources
     buffer.clear();
@@ -168,19 +195,9 @@ int main(int argc, char *argv[]) {
 
     ////////  END CLOCK //////////////
     //////// GET TIME //////////////
-    for (int i = 0; i < time_samples; i++) {
-        clock_end[i] = high_resolution_clock::now();
-    }
-
-    // Average time and convert to Micro Sec; 1 sec = 1,000,000 micro sec
-    double total = 0;
-    for (int i = 0; i < time_samples; i++) {
-        chrono::duration<double, std::milli> diff = clock_end[i] - clock_start[i];  // Time in Micro Sec
-        total += diff.count();
-    }
-    total = total / time_samples;
-
-    cout << "AVG Time: " << total << " Milli Seconds" << endl;
+    clock(clock_end, &time_samples);
+    double total_time =  calculate_time(clock_start, clock_end, &time_samples);
+    cout << "AVG Time: " << total_time  << " Milli Seconds" << endl;
     cout << "Program complete!" << endl;
 
     return 0;
