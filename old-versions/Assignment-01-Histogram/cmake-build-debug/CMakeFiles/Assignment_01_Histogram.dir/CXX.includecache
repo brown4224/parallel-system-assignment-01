@@ -1,0 +1,24 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/sean/Desktop/School/parallel-systems/Assignment-01-Histogram/main.cpp
+iostream
+-
+fstream
+-
+chrono
+-
+vector
+-
+limits
+-
+math.h
+-
+cmath
+-
+
